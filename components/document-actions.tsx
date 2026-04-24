@@ -13,26 +13,12 @@ export function DocumentActions({ content }: { content: string }) {
     });
   }
 
-  function handlePrint() {
-    window.print();
-  }
-
   return (
     <div className="flex items-center gap-2 print:hidden">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleCopy}
-        className="h-8 rounded-none text-xs px-4 border-zinc-200"
-      >
+      <Button variant="outline" size="sm" onClick={handleCopy}>
         {copied ? "Copied" : "Copy text"}
       </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handlePrint}
-        className="h-8 rounded-none text-xs px-4 border-zinc-200"
-      >
+      <Button variant="outline" size="sm" onClick={() => window.print()}>
         Print / PDF
       </Button>
     </div>

@@ -4,6 +4,16 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const TYPE_LABELS: Record<string, string> = {
   "board-charter":            "Board Charter",
@@ -37,67 +47,80 @@ export default async function DocumentsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-6 py-16">
 
         <div className="mb-10">
-          <Link href="/" className="text-xs text-zinc-400 hover:text-zinc-700 uppercase tracking-widest font-medium">
+          <Link href="/" className="text-xs text-muted-foreground hover:text-foreground uppercase tracking-widest font-medium transition-colors">
             ← Home
           </Link>
         </div>
 
-        <div className="flex items-end justify-between mb-12">
+        <div className="flex items-end justify-between mb-4">
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-zinc-400 mb-2">BNH</p>
-            <h1 className="text-3xl font-light tracking-tight text-zinc-900">Document library</h1>
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
+              BNH
+            </p>
+            <h1 className="text-3xl font-light tracking-tight text-foreground">
+              Document library
+            </h1>
           </div>
           <Link href="/generate">
-            <Button className="rounded-none h-10 px-6 text-sm font-medium">
-              New document
-            </Button>
+            <Button>New document</Button>
           </Link>
         </div>
 
-        {documents.length === 0 ? (
-          <div className="border border-zinc-100 py-24 text-center">
-            <p className="text-sm text-zinc-400 mb-5">No documents have been generated yet.</p>
-            <Link href="/generate">
-              <Button variant="outline" className="rounded-none text-sm h-10 px-6">
-                Generate your first document
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="divide-y divide-zinc-100 border-t border-b border-zinc-100">
-            {documents.map((doc: typeof documents[number]) => (
-              <Link
-                key={doc.id}
-                href={`/documents/${doc.id}`}
-                className="group flex items-center justify-between py-4 hover:bg-zinc-50 -mx-3 px-3 transition-colors"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <Badge
-                    variant="secondary"
-                    className="rounded-none text-xs font-medium shrink-0 tabular-nums"
-                  >
-                    {TYPE_LABELS[doc.type] ?? doc.type}
-                  </Badge>
-                  <span className="text-sm text-zinc-900 truncate group-hover:text-zinc-600 transition-colors">
-                    {doc.title}
-                  </span>
-                </div>
-                <span className="text-xs text-zinc-400 shrink-0 ml-4 tabular-nums">
-                  {formatDate(doc.createdAt)}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
+        <Separator className="mb-8" />
 
-        {documents.length > 0 && (
-          <p className="mt-5 text-xs text-zinc-400 text-right">
-            {documents.length} {documents.length === 1 ? "document" : "documents"}
-          </p>
+        {documents.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <p className="text-sm text-muted-foreground">
+                No documents have been generated yet.
+              </p>
+              <Link href="/generate">
+                <Button variant="outline">Generate your first document</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead className="text-right">Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {documents.map((doc: typeof documents[number]) => (
+                  <TableRow key={doc.id} className="cursor-pointer">
+                    <TableCell>
+                      <Badge variant="secondary" className="whitespace-nowrap">
+                        {TYPE_LABELS[doc.type] ?? doc.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-medium relative">
+                      <Link
+                        href={`/documents/${doc.id}`}
+                        className="before:absolute before:inset-0"
+                      >
+                        {doc.title}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground tabular-nums">
+                      {formatDate(doc.createdAt)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <p className="mt-4 text-xs text-muted-foreground text-right">
+              {documents.length} {documents.length === 1 ? "document" : "documents"}
+            </p>
+          </>
         )}
       </div>
     </div>

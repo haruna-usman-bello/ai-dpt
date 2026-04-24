@@ -1,9 +1,9 @@
 type Token =
-  | { kind: "h2";   text: string }
-  | { kind: "h3";   text: string }
-  | { kind: "h4";   text: string }
-  | { kind: "li";   text: string }
-  | { kind: "p";    text: string }
+  | { kind: "h2"; text: string }
+  | { kind: "h3"; text: string }
+  | { kind: "h4"; text: string }
+  | { kind: "li"; text: string }
+  | { kind: "p";  text: string }
   | { kind: "gap" };
 
 function tokenise(markdown: string): Token[] {
@@ -13,14 +13,12 @@ function tokenise(markdown: string): Token[] {
   for (const raw of markdown.split("\n")) {
     const line = raw.trimEnd();
 
-    // Blank line
     if (!line.trim()) {
       if (inList) inList = false;
       tokens.push({ kind: "gap" });
       continue;
     }
 
-    // Headings
     if (line.startsWith("#### ")) {
       inList = false;
       tokens.push({ kind: "h4", text: line.slice(5).trim() });
@@ -37,7 +35,6 @@ function tokenise(markdown: string): Token[] {
       continue;
     }
 
-    // Bullet / list item
     const listMatch = line.match(/^[-*•]\s+(.+)/);
     if (listMatch) {
       inList = true;
@@ -45,7 +42,6 @@ function tokenise(markdown: string): Token[] {
       continue;
     }
 
-    // Numbered list item — treat as list item
     const numberedMatch = line.match(/^\d+\.\s+(.+)/);
     if (numberedMatch) {
       inList = true;
@@ -53,25 +49,25 @@ function tokenise(markdown: string): Token[] {
       continue;
     }
 
-    // Paragraph
     if (inList) inList = false;
     tokens.push({ kind: "p", text: line.trim() });
   }
 
-  // Collapse consecutive gaps into one
   return tokens.filter((t, i) => {
     if (t.kind !== "gap") return true;
-    const prev = tokens[i - 1];
-    return prev?.kind !== "gap";
+    return tokens[i - 1]?.kind !== "gap";
   });
 }
 
 function inlineFormat(text: string): React.ReactNode {
-  // Handle **bold**
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i} className="font-semibold text-zinc-900">{part.slice(2, -2)}</strong>;
+      return (
+        <strong key={i} className="font-semibold text-foreground">
+          {part.slice(2, -2)}
+        </strong>
+      );
     }
     return part;
   });
@@ -79,7 +75,6 @@ function inlineFormat(text: string): React.ReactNode {
 
 export function DocumentRenderer({ content }: { content: string }) {
   const tokens = tokenise(content);
-
   const nodes: React.ReactNode[] = [];
   let i = 0;
 
@@ -93,7 +88,10 @@ export function DocumentRenderer({ content }: { content: string }) {
 
     if (tok.kind === "h2") {
       nodes.push(
-        <h2 key={i} className="text-base font-semibold text-zinc-900 mt-10 mb-3 pb-2 border-b border-zinc-100 print:mt-8">
+        <h2
+          key={i}
+          className="text-base font-semibold text-foreground mt-10 mb-3 pb-2 border-b border-border print:mt-8"
+        >
           {inlineFormat(tok.text)}
         </h2>
       );
@@ -103,7 +101,7 @@ export function DocumentRenderer({ content }: { content: string }) {
 
     if (tok.kind === "h3") {
       nodes.push(
-        <h3 key={i} className="text-sm font-semibold text-zinc-800 mt-5 mb-2">
+        <h3 key={i} className="text-sm font-semibold text-foreground mt-6 mb-2">
           {inlineFormat(tok.text)}
         </h3>
       );
@@ -113,7 +111,7 @@ export function DocumentRenderer({ content }: { content: string }) {
 
     if (tok.kind === "h4") {
       nodes.push(
-        <h4 key={i} className="text-sm font-medium text-zinc-700 mt-4 mb-1.5">
+        <h4 key={i} className="text-sm font-medium text-foreground mt-4 mb-1.5">
           {inlineFormat(tok.text)}
         </h4>
       );
@@ -121,7 +119,6 @@ export function DocumentRenderer({ content }: { content: string }) {
       continue;
     }
 
-    // Collect consecutive list items into a single <ul>
     if (tok.kind === "li") {
       const items: string[] = [];
       while (i < tokens.length && tokens[i].kind === "li") {
@@ -131,9 +128,9 @@ export function DocumentRenderer({ content }: { content: string }) {
       nodes.push(
         <ul key={`ul-${i}`} className="my-3 space-y-1.5 pl-0">
           {items.map((item, j) => (
-            <li key={j} className="flex gap-3 text-sm text-zinc-700 leading-relaxed">
-              <span className="mt-1.5 size-1.5 rounded-full bg-zinc-400 shrink-0" />
-              <span>{inlineFormat(item)}</span>
+            <li key={j} className="flex gap-3 text-sm text-muted-foreground leading-relaxed">
+              <span className="mt-2 size-1.5 rounded-full bg-muted-foreground/50 shrink-0" />
+              <span className="text-foreground">{inlineFormat(item)}</span>
             </li>
           ))}
         </ul>
@@ -143,7 +140,7 @@ export function DocumentRenderer({ content }: { content: string }) {
 
     if (tok.kind === "p") {
       nodes.push(
-        <p key={i} className="text-sm text-zinc-700 leading-7 my-2">
+        <p key={i} className="text-sm text-muted-foreground leading-7 my-2">
           {inlineFormat(tok.text)}
         </p>
       );
