@@ -99,6 +99,31 @@ http://localhost:3000
 
 The `/system-prompt` page displays the exact reusable BNH system prompt used by the application.
 
+## Deploy to Vercel
+
+1. Push this repository to GitHub.
+2. In Vercel, create a new project from the GitHub repository.
+3. Add these environment variables in the Vercel project settings for Production:
+   - `DATABASE_URL`
+   - `OPENAI_API_KEY`
+   - `OPENAI_MODEL` optional
+4. Use the default Vercel settings for a Next.js app.
+5. Deploy the project.
+6. Apply the production database migration:
+
+```bash
+DATABASE_URL="your-production-postgres-url" npx prisma migrate deploy
+```
+
+The project runs `prisma generate` during install, so Vercel can generate the Prisma client during deployment.
+
+You can also deploy from the command line:
+
+```bash
+npx vercel
+npx vercel --prod
+```
+
 ## Create the Three Required Sample Outputs
 
 1. Go to `/generate`.
