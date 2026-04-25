@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Document Production Tool
 
-## Getting Started
+AI Document Production Tool is a simple BNH governance drafting app. Users choose a document type, enter a subject, provide 5 to 10 bullet points, add optional constraints, and generate an executive-ready first draft using the OpenAI API. Generated documents are saved to PostgreSQL and can be reviewed later from the document history page.
 
-First, run the development server:
+## Tech Stack
+
+- Next.js 16 App Router for UI, pages, and API routes
+- React 19
+- Shadcn UI components
+- Tailwind CSS
+- Prisma 7
+- PostgreSQL
+- OpenAI API
+
+## Architecture
+
+- Next.js handles the UI and the `/api/generate` API route.
+- Prisma stores generated documents in PostgreSQL.
+- PostgreSQL is the database for document history and generated output.
+- OpenAI API generates the governance document from the submitted inputs.
+- The reusable BNH system prompt controls the writing style, structure, tone, and drafting constraints.
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+```bash
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+OPENAI_API_KEY="sk-..."
+```
+
+Optional:
+
+```bash
+OPENAI_MODEL="gpt-4o"
+```
+
+### DATABASE_URL
+
+Use a PostgreSQL connection string. For a local database, it usually looks like:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ai_dpt"
+```
+
+Replace `postgres`, `postgres`, `localhost`, `5432`, and `ai_dpt` with your actual database user, password, host, port, and database name.
+
+### OPENAI_API_KEY
+
+Set `OPENAI_API_KEY` to a valid OpenAI API key:
+
+```bash
+OPENAI_API_KEY="sk-your-api-key"
+```
+
+The app uses a real OpenAI API call. Document generation will fail if this key is missing or invalid.
+
+## Run Locally
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run Prisma migration:
+
+```bash
+npx prisma migrate dev
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Generate Documents
 
-## Learn More
+1. Go to `/generate`.
+2. Select a document type: Role Mandate, Subsidiary Brief, or Board Note.
+3. Enter a subject.
+4. Add bullet points. Five to ten points are recommended.
+5. Add optional instructions or constraints.
+6. Submit the form.
+7. The app calls the OpenAI API, saves the generated document to PostgreSQL, and redirects to `/documents/[id]`.
 
-To learn more about Next.js, take a look at the following resources:
+## View Documents
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Document history: `/documents`
+- Document detail page: `/documents/[id]`
+- System prompt page: `/system-prompt`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The `/system-prompt` page displays the exact reusable BNH system prompt used by the application.
 
-## Deploy on Vercel
+## Create the Three Required Sample Outputs
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Go to `/generate`.
+2. Click `Load Role Mandate Sample`.
+3. Submit the form to generate and save the Role Mandate output.
+4. Return to `/generate`.
+5. Click `Load Subsidiary Brief Sample`.
+6. Submit the form to generate and save the Subsidiary Brief output.
+7. Return to `/generate`.
+8. Click `Load Board Note Sample`.
+9. Submit the form to generate and save the Board Note output.
+10. View all three generated documents from `/documents`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The sample buttons only fill input fields. They do not create fake outputs; each submission still uses the live OpenAI API.
