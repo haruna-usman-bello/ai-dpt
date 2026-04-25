@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await props.params;
-    const doc = await prisma.document.findUnique({ where: { id } });
+    const doc = await prisma.generatedDocument.findUnique({ where: { id } });
 
     if (!doc) {
       return NextResponse.json({ error: "Document not found." }, { status: 404 });
@@ -26,7 +26,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await props.params;
-    await prisma.document.delete({ where: { id } });
+    await prisma.generatedDocument.delete({ where: { id } });
     return new Response(null, { status: 204 });
   } catch (err) {
     console.error("[DELETE /api/documents/[id]]", err);

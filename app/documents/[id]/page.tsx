@@ -9,22 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DocumentRenderer } from "@/components/document-renderer";
 import { DocumentActions } from "@/components/document-actions";
+import { DocumentType } from "@/lib/generated/prisma/client";
 
-const TYPE_LABELS: Record<string, string> = {
-  "board-charter":            "Board Charter",
-  "governance-framework":     "Governance Framework",
-  "risk-policy":              "Risk Management Policy",
-  "conflict-of-interest":     "Conflict of Interest Policy",
-  "anti-bribery":             "Anti-Bribery & Corruption Policy",
-  "delegation-of-authority":  "Delegation of Authority",
-  "remuneration-policy":      "Remuneration Policy",
-  "whistleblowing-policy":    "Whistleblowing Policy",
-  "data-protection":          "Data Protection Policy",
-  "information-security":     "Information Security Policy",
-  "procurement-policy":       "Procurement Policy",
-  "business-continuity":      "Business Continuity Plan",
-  "compliance-report":        "Compliance Report",
-  "audit-charter":            "Internal Audit Charter",
+const TYPE_LABELS: Record<DocumentType, string> = {
+  ROLE_MANDATE:     "Role Mandate",
+  SUBSIDIARY_BRIEF: "Subsidiary Brief",
+  BOARD_NOTE:       "Board Note",
 };
 
 function formatDate(date: Date) {
@@ -39,16 +29,16 @@ export default async function DocumentPage(props: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await props.params;
-  const doc = await prisma.document.findUnique({ where: { id } });
+  const doc = await prisma.generatedDocument.findUnique({ where: { id } });
 
   if (!doc) notFound();
 
-  const bulletList = doc.bullets
+  const bulletList = doc.bulletPoints
     .split("\n")
-    .map((l: string) => l.trim())
+    .map((l) => l.trim())
     .filter(Boolean);
 
-  const typeLabel = TYPE_LABELS[doc.type] ?? doc.type;
+  const typeLabel = TYPE_LABELS[doc.documentType];
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,7 +52,7 @@ export default async function DocumentPage(props: {
           ← Documents
         </Link>
         <div className="flex items-center gap-2">
-          <DocumentActions content={doc.content} />
+          <DocumentActions content={doc.generatedOutput} />
           <Link href="/generate">
             <Button variant="outline" size="sm">New document</Button>
           </Link>
@@ -74,7 +64,7 @@ export default async function DocumentPage(props: {
         {/* Print header */}
         <div className="hidden print:block mb-8">
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">BNH</p>
-          <Separator className="border-foreground" />
+          <Separator />
         </div>
 
         {/* Document header */}
@@ -83,14 +73,14 @@ export default async function DocumentPage(props: {
             {typeLabel}
           </Badge>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground leading-tight mb-2 print:text-3xl">
-            {doc.title}
+            {doc.subject}
           </h1>
           <p className="text-sm text-muted-foreground">{formatDate(doc.createdAt)}</p>
         </header>
 
         <Separator className="mb-8" />
 
-        {/* Key points — hidden in print */}
+        {/* Key points used */}
         {bulletList.length > 0 && (
           <Card className="mb-10 print:hidden">
             <CardHeader>
@@ -98,8 +88,8 @@ export default async function DocumentPage(props: {
             </CardHeader>
             <CardContent>
               <ol className="space-y-2">
-                {bulletList.map((b: string, i: number) => (
-                  <li key={i} className="flex gap-3 text-sm text-foreground">
+                {bulletList.map((b, i) => (
+                  <li key={i} className="flex gap-3 text-sm">
                     <span className="text-muted-foreground tabular-nums shrink-0">{i + 1}.</span>
                     <span>{b}</span>
                   </li>
@@ -109,8 +99,22 @@ export default async function DocumentPage(props: {
           </Card>
         )}
 
+        {/* Specific instructions (if any) */}
+        {doc.specificInstructions && (
+          <Card className="mb-10 print:hidden">
+            <CardHeader>
+              <CardTitle className="text-sm">Specific instructions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {doc.specificInstructions}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Generated document body */}
-        <DocumentRenderer content={doc.content} />
+        <DocumentRenderer content={doc.generatedOutput} />
 
         {/* Print footer */}
         <div className="hidden print:block mt-16 pt-4">

@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const documents = await prisma.document.findMany({
+    const documents = await prisma.generatedDocument.findMany({
       orderBy: { createdAt: "desc" },
-      select: { id: true, title: true, type: true, createdAt: true },
+      select: { id: true, subject: true, documentType: true, createdAt: true },
     });
     return NextResponse.json(documents);
   } catch (err) {

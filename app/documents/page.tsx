@@ -14,22 +14,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DocumentType } from "@/lib/generated/prisma/client";
 
-const TYPE_LABELS: Record<string, string> = {
-  "board-charter":            "Board Charter",
-  "governance-framework":     "Governance Framework",
-  "risk-policy":              "Risk Policy",
-  "conflict-of-interest":     "Conflict of Interest",
-  "anti-bribery":             "Anti-Bribery",
-  "delegation-of-authority":  "Delegation of Authority",
-  "remuneration-policy":      "Remuneration",
-  "whistleblowing-policy":    "Whistleblowing",
-  "data-protection":          "Data Protection",
-  "information-security":     "Info. Security",
-  "procurement-policy":       "Procurement",
-  "business-continuity":      "Business Continuity",
-  "compliance-report":        "Compliance Report",
-  "audit-charter":            "Audit Charter",
+const TYPE_LABELS: Record<DocumentType, string> = {
+  ROLE_MANDATE:     "Role Mandate",
+  SUBSIDIARY_BRIEF: "Subsidiary Brief",
+  BOARD_NOTE:       "Board Note",
 };
 
 function formatDate(date: Date) {
@@ -41,9 +31,9 @@ function formatDate(date: Date) {
 }
 
 export default async function DocumentsPage() {
-  const documents = await prisma.document.findMany({
+  const documents = await prisma.generatedDocument.findMany({
     orderBy: { createdAt: "desc" },
-    select: { id: true, title: true, type: true, createdAt: true },
+    select: { id: true, subject: true, documentType: true, createdAt: true },
   });
 
   return (
@@ -51,7 +41,10 @@ export default async function DocumentsPage() {
       <div className="max-w-3xl mx-auto px-6 py-16">
 
         <div className="mb-10">
-          <Link href="/" className="text-xs text-muted-foreground hover:text-foreground uppercase tracking-widest font-medium transition-colors">
+          <Link
+            href="/"
+            className="text-xs text-muted-foreground hover:text-foreground uppercase tracking-widest font-medium transition-colors"
+          >
             ← Home
           </Link>
         </div>
@@ -89,16 +82,16 @@ export default async function DocumentsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Type</TableHead>
-                  <TableHead>Title</TableHead>
+                  <TableHead>Subject</TableHead>
                   <TableHead className="text-right">Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {documents.map((doc: typeof documents[number]) => (
+                {documents.map((doc) => (
                   <TableRow key={doc.id} className="cursor-pointer">
                     <TableCell>
                       <Badge variant="secondary" className="whitespace-nowrap">
-                        {TYPE_LABELS[doc.type] ?? doc.type}
+                        {TYPE_LABELS[doc.documentType]}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium relative">
@@ -106,7 +99,7 @@ export default async function DocumentsPage() {
                         href={`/documents/${doc.id}`}
                         className="before:absolute before:inset-0"
                       >
-                        {doc.title}
+                        {doc.subject}
                       </Link>
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground tabular-nums">
