@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function DocumentActions({ content }: { content: string }) {
@@ -16,10 +17,8 @@ export function DocumentActions({ content }: { content: string }) {
   return (
     <div className="flex items-center gap-2 print:hidden">
       <Button variant="outline" size="sm" onClick={handleCopy}>
-        {copied ? "Copied" : "Copy text"}
-      </Button>
-      <Button variant="outline" size="sm" onClick={() => window.print()}>
-        Print / PDF
+        <Copy aria-hidden="true" />
+        {copied ? "Copied" : "Copy output"}
       </Button>
     </div>
   );
