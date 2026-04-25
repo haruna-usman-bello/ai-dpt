@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { openai } from "@/lib/openai";
 import { AI_DOCUMENT_SYSTEM_PROMPT } from "@/lib/system-prompt";
+import { generateGovernanceDocument } from "@/lib/document-generation";
 import { DocumentType } from "@/lib/generated/prisma/client";
-
-const TYPE_LABELS: Record<DocumentType, string> = {
-  ROLE_MANDATE:     "Role Mandate",
-  SUBSIDIARY_BRIEF: "Subsidiary Brief",
-  BOARD_NOTE:       "Board Note",
-};
 
 const MAX_BULLET_POINTS = 10;
 
@@ -45,42 +39,21 @@ export async function POST(request: NextRequest) {
 
     const type     = documentType as DocumentType;
     const systemPrompt = AI_DOCUMENT_SYSTEM_PROMPT;
-    const typeLabel    = TYPE_LABELS[type];
-
-    const numberedPoints = cleanBulletPoints
-      .map((b, i) => `${i + 1}. ${b}`)
-      .join("\n");
-
-    const userMessage = [
-      `Document type: ${typeLabel}`,
-      `Subject: ${subject.trim()}`,
-      "",
-      "Key points to expand:",
-      numberedPoints,
-      specificInstructions?.trim()
-        ? `\nAdditional instructions:\n${specificInstructions.trim()}`
-        : "",
-    ]
-      .join("\n")
-      .trim();
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user",   content: userMessage },
-      ],
-      temperature: 0.3,
+    const cleanSubject = subject.trim();
+    const cleanInstructions = specificInstructions?.trim() || null;
+    const generatedOutput = await generateGovernanceDocument({
+      documentType: type,
+      subject: cleanSubject,
+      bulletPoints: cleanBulletPoints,
+      specificInstructions: cleanInstructions,
     });
-
-    const generatedOutput = completion.choices[0]?.message?.content ?? "";
 
     const doc = await prisma.generatedDocument.create({
       data: {
         documentType:         type,
-        subject:              subject.trim(),
+        subject:              cleanSubject,
         bulletPoints:         cleanBulletPoints.join("\n"),
-        specificInstructions: specificInstructions?.trim() || null,
+        specificInstructions: cleanInstructions,
         systemPrompt,
         generatedOutput,
       },
