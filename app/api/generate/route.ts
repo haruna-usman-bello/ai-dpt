@@ -62,6 +62,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: doc.id }, { status: 201 });
   } catch (err) {
     console.error("[POST /api/generate]", err);
-    return NextResponse.json({ error: "Failed to generate document." }, { status: 500 });
+    const message =
+      err instanceof Error ? err.message : "Failed to generate document.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
