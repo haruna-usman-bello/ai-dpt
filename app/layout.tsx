@@ -30,6 +30,12 @@ export default function RootLayout({
 
           <nav className="flex items-center gap-1">
             <Link
+              href="/system-prompt"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              System prompt
+            </Link>
+            <Link
               href="/documents"
               className={buttonVariants({ variant: "ghost", size: "sm" })}
             >
