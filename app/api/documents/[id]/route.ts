@@ -19,17 +19,3 @@ export async function GET(
     return NextResponse.json({ error: "Failed to fetch document." }, { status: 500 });
   }
 }
-
-export async function DELETE(
-  _request: Request,
-  props: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await props.params;
-    await prisma.generatedDocument.delete({ where: { id } });
-    return new Response(null, { status: 204 });
-  } catch (err) {
-    console.error("[DELETE /api/documents/[id]]", err);
-    return NextResponse.json({ error: "Failed to delete document." }, { status: 500 });
-  }
-}

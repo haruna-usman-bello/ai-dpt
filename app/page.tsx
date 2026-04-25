@@ -5,18 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 const DOC_TYPES = [
-  "Board Charter",
-  "Governance Framework",
-  "Risk Management Policy",
-  "Conflict of Interest Policy",
-  "Anti-Bribery & Corruption Policy",
-  "Delegation of Authority",
-  "Remuneration Policy",
-  "Whistleblowing Policy",
-  "Data Protection Policy",
-  "Procurement Policy",
-  "Business Continuity Plan",
-  "Internal Audit Charter",
+  "Role Mandate",
+  "Subsidiary Brief",
+  "Board Note",
 ];
 
 const HOW_IT_WORKS = [
@@ -28,12 +19,12 @@ const HOW_IT_WORKS = [
   {
     step: "02",
     heading: "Select document type",
-    body: "Choose from BNH's governance catalogue. The AI applies the correct structure and standard clauses.",
+    body: "Choose a Role Mandate, Subsidiary Brief, or Board Note. The AI applies the relevant governance structure.",
   },
   {
     step: "03",
-    heading: "Review and export",
-    body: "Your document is produced in seconds, formatted in BNH's house style. Copy or print to PDF.",
+    heading: "Review and copy",
+    body: "Your document is saved to the library and displayed in BNH's executive document format.",
   },
 ];
 
