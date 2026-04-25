@@ -53,6 +53,56 @@ const MIN_RECOMMENDED = 5;
 const MAX_BULLETS = 10;
 const INITIAL_BULLET_COUNT = 5;
 
+const SAMPLE_INPUTS: Record<
+  DocumentType,
+  {
+    buttonLabel: string;
+    subject: string;
+    bulletPoints: string[];
+    instructions: string;
+  }
+> = {
+  ROLE_MANDATE: {
+    buttonLabel: "Load Role Mandate Sample",
+    subject: "Group Head of Compliance",
+    bulletPoints: [
+      "Responsible for oversight of compliance risk across BNH and its subsidiaries",
+      "Reports functionally to the Board Risk and Compliance Committee and administratively to the Chief Executive Officer",
+      "Maintains the compliance framework, annual compliance plan, and regulatory obligations register",
+      "Provides quarterly compliance reports covering breaches, remediation actions, and emerging regulatory issues",
+      "Has authority to escalate material compliance concerns directly to the Board Chair where management action is inadequate",
+      "Coordinates compliance training for directors, senior management, and relevant control function staff",
+    ],
+    instructions: "Use concise institutional language and focus on mandate, authority, reporting, and accountability.",
+  },
+  SUBSIDIARY_BRIEF: {
+    buttonLabel: "Load Subsidiary Brief Sample",
+    subject: "BNH Digital Services Limited",
+    bulletPoints: [
+      "Wholly owned subsidiary providing shared digital operations and technology support to the BNH group",
+      "Governed by a three-member subsidiary board with quarterly reporting to the Group Board",
+      "Current priorities include platform stability, cyber resilience, vendor oversight, and service continuity",
+      "Key dependencies include cloud infrastructure providers, group information security policies, and regulatory data protection requirements",
+      "Management has identified cyber incident response, third-party concentration, and operational resilience as principal risk areas",
+      "The subsidiary requires clearer escalation thresholds for material incidents affecting regulated group entities",
+    ],
+    instructions: "Prepare as an executive brief for group-level review. Keep recommendations limited to the stated facts.",
+  },
+  BOARD_NOTE: {
+    buttonLabel: "Load Board Note Sample",
+    subject: "Approval of Revised Delegation of Authority Thresholds",
+    bulletPoints: [
+      "Management proposes revised approval thresholds for procurement, capital expenditure, and exceptional operating expenses",
+      "The current delegation framework has not been updated since the group expanded its subsidiary structure",
+      "Revised thresholds are intended to clarify approval routes and reduce avoidable escalation of routine decisions",
+      "Board approval remains required for strategic acquisitions, material related-party transactions, and unbudgeted expenditure above approved limits",
+      "Subsidiary boards will retain authority within approved limits, subject to quarterly reporting to the Group Board",
+      "Internal Audit will review implementation after six months and report control exceptions to the Audit Committee",
+    ],
+    instructions: "Frame the output as a Board Note seeking approval. Include implications, risks, recommendation, and next steps.",
+  },
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function BulletCounter({ filled }: { filled: number }) {
@@ -97,6 +147,16 @@ export default function GeneratePage() {
   function removeBullet(index: number) {
     if (bullets.length <= 1) return;
     setBullets((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function loadSample(type: DocumentType) {
+    const sample = SAMPLE_INPUTS[type];
+    setDocumentType(type);
+    setSubject(sample.subject);
+    setBullets(sample.bulletPoints);
+    setInstructions(sample.instructions);
+    setErrors({});
+    setSubmitError("");
   }
 
   const filledBullets = bullets.map((b) => b.trim()).filter(Boolean);
@@ -180,6 +240,31 @@ export default function GeneratePage() {
         </div>
 
         <Separator className="mb-8" />
+
+        <Card className="mb-8">
+          <CardContent className="space-y-3">
+            <div>
+              <p className="text-sm font-medium">Sample inputs</p>
+              <p className="text-xs text-muted-foreground">
+                Fill the form with sample source material. Generation still requires submitting to the live LLM API.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              {(Object.keys(SAMPLE_INPUTS) as DocumentType[]).map((type) => (
+                <Button
+                  key={type}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadSample(type)}
+                  disabled={loading}
+                >
+                  {SAMPLE_INPUTS[type].buttonLabel}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-8">
 

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { ArrowLeft, Eye, FilePlus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,23 +44,30 @@ export default async function DocumentsPage() {
         <div className="mb-10">
           <Link
             href="/"
-            className="text-xs text-muted-foreground hover:text-foreground uppercase tracking-widest font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground uppercase tracking-widest font-medium transition-colors"
           >
-            ← Home
+            <ArrowLeft className="size-3.5" aria-hidden="true" />
+            Home
           </Link>
         </div>
 
-        <div className="flex items-end justify-between mb-4">
+        <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
               BNH
             </p>
             <h1 className="text-3xl font-light tracking-tight text-foreground">
-              Document library
+              Document history
             </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Review previously generated governance documents.
+            </p>
           </div>
           <Link href="/generate">
-            <Button>New document</Button>
+            <Button>
+              <FilePlus aria-hidden="true" />
+              New document
+            </Button>
           </Link>
         </div>
 
@@ -78,37 +86,45 @@ export default async function DocumentsPage() {
           </Card>
         ) : (
           <>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Subject</TableHead>
-                  <TableHead className="text-right">Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {documents.map((doc) => (
-                  <TableRow key={doc.id} className="cursor-pointer">
-                    <TableCell>
-                      <Badge variant="secondary" className="whitespace-nowrap">
-                        {TYPE_LABELS[doc.documentType]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium relative">
-                      <Link
-                        href={`/documents/${doc.id}`}
-                        className="before:absolute before:inset-0"
-                      >
-                        {doc.subject}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground tabular-nums">
-                      {formatDate(doc.createdAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Document type</TableHead>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Created date</TableHead>
+                      <TableHead className="text-right">View</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {documents.map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell>
+                          <Badge variant="secondary" className="whitespace-nowrap">
+                            {TYPE_LABELS[doc.documentType]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {doc.subject}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground tabular-nums">
+                          {formatDate(doc.createdAt)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Link href={`/documents/${doc.id}`}>
+                            <Button variant="outline" size="sm">
+                              <Eye aria-hidden="true" />
+                              View
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
 
             <p className="mt-4 text-xs text-muted-foreground text-right">
               {documents.length} {documents.length === 1 ? "document" : "documents"}
